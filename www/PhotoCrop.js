@@ -7,9 +7,22 @@ var argscheck = require('cordova/argscheck'),
 
 var cameraExport = {};
 
+var constants = {
+    DestinationType: {
+        DATA_URL: 0, // Return base64 encoded string
+        FILE_URI: 1, // Return file uri (content://media/external/images/media/2 for Android)
+        NATIVE_URI: 2 // Return native uri (eg. asset-library://... for iOS)
+    },
+    CropType: {
+        SQUARE: 0,
+        SIZE: 1,
+        ASPECT: 2
+    }
+}
+
 // Tack on the Camera Constants to the base camera plugin.
-for (var key in PhotoCrop) {
-    cameraExport[key] = PhotoCrop[key];
+for (var key in constants) {
+    cameraExport[key] = constants[key];
 }
 
 /**
@@ -22,14 +35,14 @@ for (var key in PhotoCrop) {
  * @param {Function} errorCallback
  * @param {Object} options
  */
-cameraExport.getPicture = function(successCallback, errorCallback, options) {
+cameraExport.getPicture = function (successCallback, errorCallback, options) {
     argscheck.checkArgs('fFO', 'PhotoCrop.getPicture', arguments);
     options = options || {};
     var getValue = argscheck.getValue;
 
     var fileUri = getValue(options.fileUri, '');
     var destinationType = getValue(options.destinationType, PhotoCrop.DestinationType.FILE_URI);
-    
+
     var targetWidth = getValue(options.targetWidth || options.targetX, 0);
     var targetHeight = getValue(options.targetHeight || options.targetY, 0);
 
@@ -40,7 +53,7 @@ cameraExport.getPicture = function(successCallback, errorCallback, options) {
     exec(successCallback, errorCallback, "PhotoCrop", "cropPicture", args);
 };
 
-cameraExport.cleanup = function(successCallback, errorCallback) {
+cameraExport.cleanup = function (successCallback, errorCallback) {
     exec(successCallback, errorCallback, "PhotoCrop", "cleanup", []);
 };
 
