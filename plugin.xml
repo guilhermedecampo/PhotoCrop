@@ -24,8 +24,6 @@
         </config-file>
         
         <source-file src="src/android/PhotoCrop.java" target-dir="src/com/sarriaroman/photocrop" />
-        <source-file src="src/android/FileHelper.java" target-dir="src/com/sarriaroman/photocrop" />
-        <source-file src="src/android/ExifHelper.java" target-dir="src/com/sarriaroman/photocrop" />
         
         <framework src="src/android/SoundcloudCropLib" custom="true" />
     </platform>
