@@ -1,24 +1,6 @@
 /**
  * PhotoCrop is a modification of Cordova Camera Library for Android and iOS with Cropping utility
- */ 
-/*
-       Licensed to the Apache Software Foundation (ASF) under one
-       or more contributor license agreements.  See the NOTICE file
-       distributed with this work for additional information
-       regarding copyright ownership.  The ASF licenses this file
-       to you under the Apache License, Version 2.0 (the
-       "License"); you may not use this file except in compliance
-       with the License.  You may obtain a copy of the License at
-
-         http://www.apache.org/licenses/LICENSE-2.0
-
-       Unless required by applicable law or agreed to in writing,
-       software distributed under the License is distributed on an
-       "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-       KIND, either express or implied.  See the License for the
-       specific language governing permissions and limitations
-       under the License.
-*/
+ */
 package com.sarriaroman.photocrop;
 
 import java.io.ByteArrayOutputStream;
@@ -55,75 +37,117 @@ import android.util.Base64;
 import android.util.Log;
 
 /**
- * This class launches the camera view, allows the user to take a picture, closes the camera view,
- * and returns the captured image.  When the camera view is closed, the screen displayed before
- * the camera view was shown is redisplayed.
+ * This class launches the crop view and returns the captured image.
  */
 public class PhotoCrop extends CordovaPlugin {
+	private static final int DATA_URL = 0; // Return base64 encoded string
+	private static final int FILE_URI = 1; // Return file uri
+											// (content://media/external/images/media/2
+											// for Android)
+	private static final int NATIVE_URI = 2; // On Android, this is the same as
+												// FILE_URI
 
-    /**
-     * Executes the request and returns PluginResult.
-     *
-     * @param action            The action to execute.
-     * @param args              JSONArry of arguments for the plugin.
-     * @param callbackContext   The callback id used when calling back into JavaScript.
-     * @return                  A PluginResult object with a status and message.
-     */
-    public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
-        this.callbackContext = callbackContext;
+	// -----------------------------------------------------------------------------------------
+	private static final int SQUARE_TYPE = 0; 
+	private static final int SIZE_TYPE = 1;
+	private static final int ASPECT_TYPE = 2;
+	// -----------------------------------------------------------------------------------------
 
-        if (action.equals("takePicture")) {
-            int srcType = CAMERA;
-            int destType = FILE_URI;
-            this.saveToPhotoAlbum = false;
-            this.targetHeight = 0;
-            this.targetWidth = 0;
-            this.encodingType = JPEG;
-            this.mediaType = PICTURE;
-            this.mQuality = 80;
+	private CallbackContext callbackContext;
+	private Object targetX;
+	private int targetWidth;
+	private Object targetY;
+	private int targetHeight;
+	private String fileUri;
+	private int destType;
 
-            this.mQuality = args.getInt(0);
-            destType = args.getInt(1);
-            srcType = args.getInt(2);
-            this.targetWidth = args.getInt(3);
-            this.targetHeight = args.getInt(4);
-            this.encodingType = args.getInt(5);
-            this.mediaType = args.getInt(6);
-            this.allowEdit = args.getBoolean(7);
-            this.correctOrientation = args.getBoolean(8);
-            this.saveToPhotoAlbum = args.getBoolean(9);
+	/**
+	 * Executes the request and returns PluginResult.
+	 *
+	 * @param action
+	 *            The action to execute.
+	 * @param args
+	 *            JSONArry of arguments for the plugin.
+	 * @param callbackContext
+	 *            The callback id used when calling back into JavaScript.
+	 * @return A PluginResult object with a status and message.
+	 */
+	public boolean execute(String action, JSONArray args,
+			CallbackContext callbackContext) throws JSONException {
+		this.callbackContext = callbackContext;
 
-            // If the user specifies a 0 or smaller width/height
-            // make it -1 so later comparisons succeed
-            if (this.targetWidth < 1) {
-                this.targetWidth = -1;
-            }
-            if (this.targetHeight < 1) {
-                this.targetHeight = -1;
-            }
+		if (action.equals("takePicture")) {
+			this.destType = FILE_URI;
+			this.targetX = this.targetWidth = 0;
+			this.targetY = this.targetHeight = 0;
 
-             try {
-                if (srcType == CAMERA) {
-                    this.takePicture(destType, encodingType);
-                }
-                else if ((srcType == PHOTOLIBRARY) || (srcType == SAVEDPHOTOALBUM)) {
-                    this.getImage(srcType, destType, encodingType);
-                }
-            }
-            catch (IllegalArgumentException e)
-            {
-                callbackContext.error("Illegal Argument Exception");
-                PluginResult r = new PluginResult(PluginResult.Status.ERROR);
-                callbackContext.sendPluginResult(r);
-                return true;
-            }
-             
-            PluginResult r = new PluginResult(PluginResult.Status.NO_RESULT);
-            r.setKeepCallback(true);
-            callbackContext.sendPluginResult(r);
-            
-            return true;
+			this.fileUri = args.getString(0);
+			
+			destType = args.getInt(1);
+			this.targetX = this.targetWidth = args.getInt(3);
+			this.targetHeight = args.getInt(4);
+			this.targetY = this.targetHeight = args.getInt(5);
+
+			// If the user specifies a 0 or smaller width/height
+			// make it -1 so later comparisons succeed
+			if (this.targetWidth < 1) {
+				this.targetWidth = -1;
+			}
+			if (this.targetHeight < 1) {
+				this.targetHeight = -1;
+			}
+
+			try {
+				new Crop(this.fileUri).output(outputUri).asSquare().start((CordovaPlugin) this);
+			} catch (IllegalArgumentException e) {
+				callbackContext.error("Illegal Argument Exception");
+				PluginResult r = new PluginResult(PluginResult.Status.ERROR);
+				callbackContext.sendPluginResult(r);
+				return true;
+			}
+
+			PluginResult r = new PluginResult(PluginResult.Status.NO_RESULT);
+			r.setKeepCallback(true);
+			callbackContext.sendPluginResult(r);
+
+			return true;
+		}
+		return false;
+	}
+	
+	private String getTempDirectoryPath() {
+        File cache = null;
+
+        // SD Card Mounted
+        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+            cache = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +
+                    "/Android/data/" + cordova.getActivity().getPackageName() + "/cache/");
         }
-        return false;
+        // Use internal storage
+        else {
+            cache = cordova.getActivity().getCacheDir();
+        }
+
+        // Create the cache directory if it doesn't exist
+        cache.mkdirs();
+        return cache.getAbsolutePath();
+    }
+	
+	/**
+     * Create a file in the applications temporary directory based upon the supplied encoding.
+     *
+     * @param encodingType of the image to be taken
+     * @return a File object pointing to the temporary picture
+     */
+    private File createCropFile(int encodingType) {
+        File photo = null;
+        if (encodingType == JPEG) {
+            photo = new File(getTempDirectoryPath(), ".Pic.jpg");
+        } else if (encodingType == PNG) {
+            photo = new File(getTempDirectoryPath(), ".Pic.png");
+        } else {
+            throw new IllegalArgumentException("Invalid Encoding Type: " + encodingType);
+        }
+        return photo;
     }
 }
