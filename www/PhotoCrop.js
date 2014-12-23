@@ -3,13 +3,12 @@
  */
 
 var argscheck = require('cordova/argscheck'),
-    exec = require('cordova/exec'),
-    PhotoCrop = require('./PhotoCrop');
+    exec = require('cordova/exec');
 
 var cameraExport = {};
 
 // Tack on the Camera Constants to the base camera plugin.
-for (var key in Camera) {
+for (var key in PhotoCrop) {
     cameraExport[key] = PhotoCrop[key];
 }
 
