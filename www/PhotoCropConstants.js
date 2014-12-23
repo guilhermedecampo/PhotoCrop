@@ -26,8 +26,8 @@ module.exports = {
         NATIVE_URI: 2 // Return native uri (eg. asset-library://... for iOS)
     },
     CropType: {
-        SQUARE: 1,
-        SIZE: 2,
-        ASPECT: 3
+        SQUARE: 0,
+        SIZE: 1,
+        ASPECT: 2
     }
 };
