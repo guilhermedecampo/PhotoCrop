@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<plugin id="com.sarriaroman.photocrop" version="0.0.1" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+    <name>PhotoCrop</name>
+    <js-module name="PhotoCrop" src="www/PhotoCrop.js">
+        <clobbers target="navigator.camera" />
+    </js-module>
+    
+    <js-module src="www/CameraConstants.js" name="PhotoCrop">
+        <clobbers target="Camera" />
+    </js-module>
+    
+    <platform name="android">
+        <config-file parent="/*" target="res/xml/config.xml">
+            <feature name="PhotoCrop">
+                <param name="android-package" value="com.sarriaroman.photocrop.PhotoCrop" />
+            </feature>
+        </config-file>
+        <config-file parent="/manifest" target="AndroidManifest.xml">
+            <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+        </config-file>
+        
+        <config-file target="AndroidManifest.xml" parent="/manifest/application">
+            <activity android:name="com.soundcloud.android.crop.CropImageActivity" />
+        </config-file>
+        
+        <source-file src="src/android/PhotoCrop.java" target-dir="src/com/sarriaroman/photocrop/PhotoCrop" />
+        <source-file src="src/android/FileHelper.java" target-dir="src/com/sarriaroman/photocrop/PhotoCrop" />
+        <source-file src="src/android/ExifHelper.java" target-dir="src/com/sarriaroman/photocrop/PhotoCrop" />
+        
+        <framework src="src/android/soundcloud-crop-lib" custom="true" />
+    </platform>
+</plugin>
