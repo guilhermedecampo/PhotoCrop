@@ -5,7 +5,7 @@
 var argscheck = require('cordova/argscheck'),
     exec = require('cordova/exec');
 
-var cameraExport = {};
+var pluginExport = {};
 
 var constants = {
     DestinationType: {
@@ -22,7 +22,7 @@ var constants = {
 
 // Tack on the Camera Constants to the base camera plugin.
 for (var key in constants) {
-    cameraExport[key] = constants[key];
+    pluginExport[key] = constants[key];
 }
 
 /**
@@ -35,7 +35,7 @@ for (var key in constants) {
  * @param {Function} errorCallback
  * @param {Object} options
  */
-cameraExport.getPicture = function (successCallback, errorCallback, options) {
+pluginExport.cropPicture = function (successCallback, errorCallback, options) {
     argscheck.checkArgs('fFO', 'PhotoCrop.getPicture', arguments);
     options = options || {};
     var getValue = argscheck.getValue;
@@ -53,8 +53,8 @@ cameraExport.getPicture = function (successCallback, errorCallback, options) {
     exec(successCallback, errorCallback, "PhotoCrop", "cropPicture", args);
 };
 
-cameraExport.cleanup = function (successCallback, errorCallback) {
+pluginExport.cleanup = function (successCallback, errorCallback) {
     exec(successCallback, errorCallback, "PhotoCrop", "cleanup", []);
 };
 
-module.exports = cameraExport;
+module.exports = pluginExport;
