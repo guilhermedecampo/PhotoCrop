@@ -50,7 +50,7 @@ module.exports = {
         BACK: 0,
         FRONT: 1
     },
-    Crop: {
+    CropType: {
         SQUARE: 1,
         SIZE: 2,
         ASPECT: 3

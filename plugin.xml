@@ -2,7 +2,7 @@
 <plugin id="com.sarriaroman.photocrop" version="0.0.1" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
     <name>PhotoCrop</name>
     <js-module name="PhotoCrop" src="www/PhotoCrop.js">
-        <clobbers target="navigator.camera" />
+        <clobbers target="navigator.PhotoCrop" />
     </js-module>
     
     <js-module src="www/CameraConstants.js" name="PhotoCrop">
