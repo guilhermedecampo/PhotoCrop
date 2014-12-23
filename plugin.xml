@@ -5,10 +5,6 @@
         <clobbers target="navigator.PhotoCrop" />
     </js-module>
     
-    <js-module src="www/PhotoCropConstants.js" name="PhotoCrop">
-        <clobbers target="PhotoCrop" />
-    </js-module>
-    
     <platform name="android">
         <config-file parent="/*" target="res/xml/config.xml">
             <feature name="PhotoCrop">
