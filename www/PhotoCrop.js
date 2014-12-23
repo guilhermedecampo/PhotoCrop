@@ -30,13 +30,15 @@ cameraExport.getPicture = function(successCallback, errorCallback, options) {
 
     var fileUri = getValue(options.fileUri, '');
     var destinationType = getValue(options.destinationType, PhotoCrop.DestinationType.FILE_URI);
+    
+    var targetWidth = getValue(options.targetWidth || options.targetX, 0);
+    var targetHeight = getValue(options.targetHeight || options.targetY, 0);
 
     var cropType = getValue(options.cropType, PhotoCrop.CropType.SQUARE);
 
-    var args = [quality, destinationType, sourceType, targetWidth, targetHeight, encodingType,
-                mediaType, allowEdit, correctOrientation, saveToPhotoAlbum, popoverOptions, cameraDirection, cropType];
+    var args = [fileUri, destinationType, cropType, targetWidth, targetHeight];
 
-    exec(successCallback, errorCallback, "PhotoCrop", "takePicture", args);
+    exec(successCallback, errorCallback, "PhotoCrop", "cropPicture", args);
 };
 
 cameraExport.cleanup = function(successCallback, errorCallback) {
