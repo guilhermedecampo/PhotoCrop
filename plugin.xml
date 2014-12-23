@@ -23,9 +23,9 @@
             <activity android:name="com.soundcloud.android.crop.CropImageActivity" />
         </config-file>
         
-        <source-file src="src/android/PhotoCrop.java" target-dir="src/com/sarriaroman/photocrop/PhotoCrop" />
-        <source-file src="src/android/FileHelper.java" target-dir="src/com/sarriaroman/photocrop/PhotoCrop" />
-        <source-file src="src/android/ExifHelper.java" target-dir="src/com/sarriaroman/photocrop/PhotoCrop" />
+        <source-file src="src/android/PhotoCrop.java" target-dir="src/com/sarriaroman/photocrop" />
+        <source-file src="src/android/FileHelper.java" target-dir="src/com/sarriaroman/photocrop" />
+        <source-file src="src/android/ExifHelper.java" target-dir="src/com/sarriaroman/photocrop" />
         
         <framework src="src/android/soundcloud-crop-lib" custom="true" />
     </platform>
