@@ -5,36 +5,24 @@ package com.sarriaroman.photocrop;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.util.Locale;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
-import org.apache.cordova.LOG;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 
 import android.app.Activity;
-import android.content.ActivityNotFoundException;
-import android.content.ContentValues;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
-import android.media.MediaScannerConnection;
-import android.media.MediaScannerConnection.MediaScannerConnectionClient;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.util.Base64;
-import android.util.Log;
+
+import com.soundcloud.android.crop.Crop;
 
 /**
  * This class launches the crop view and returns the captured image.
@@ -54,12 +42,13 @@ public class PhotoCrop extends CordovaPlugin {
 	// -----------------------------------------------------------------------------------------
 
 	private CallbackContext callbackContext;
-	private Object targetX;
+	private int targetX;
 	private int targetWidth;
-	private Object targetY;
+	private int targetY;
 	private int targetHeight;
 	private String fileUri;
 	private int destType;
+	private int cropType;
 
 	/**
 	 * Executes the request and returns PluginResult.
@@ -84,21 +73,24 @@ public class PhotoCrop extends CordovaPlugin {
 			this.fileUri = args.getString(0);
 			
 			destType = args.getInt(1);
+			cropType = args.getInt(2);
+			
 			this.targetX = this.targetWidth = args.getInt(3);
-			this.targetHeight = args.getInt(4);
-			this.targetY = this.targetHeight = args.getInt(5);
-
-			// If the user specifies a 0 or smaller width/height
-			// make it -1 so later comparisons succeed
-			if (this.targetWidth < 1) {
-				this.targetWidth = -1;
-			}
-			if (this.targetHeight < 1) {
-				this.targetHeight = -1;
-			}
+			this.targetY = this.targetHeight = args.getInt(4);
 
 			try {
-				new Crop(this.fileUri).output(outputUri).asSquare().start((CordovaPlugin) this);
+				Crop crop = new Crop(Uri.parse(this.fileUri))
+					.output(Uri.fromFile(this.createCropFile()));
+					
+				if( cropType == SQUARE_TYPE ) {
+					crop.asSquare();
+				} else if( cropType == SIZE_TYPE ) {
+					crop.withMaxSize(targetWidth, targetHeight);
+				} if( cropType == ASPECT_TYPE ) {
+					crop.withAspect(targetX, targetY);
+				}
+				
+				crop.start(this.cordova.getActivity());
 			} catch (IllegalArgumentException e) {
 				callbackContext.error("Illegal Argument Exception");
 				PluginResult r = new PluginResult(PluginResult.Status.ERROR);
@@ -139,15 +131,69 @@ public class PhotoCrop extends CordovaPlugin {
      * @param encodingType of the image to be taken
      * @return a File object pointing to the temporary picture
      */
-    private File createCropFile(int encodingType) {
+    private File createCropFile() {
         File photo = null;
-        if (encodingType == JPEG) {
-            photo = new File(getTempDirectoryPath(), ".Pic.jpg");
-        } else if (encodingType == PNG) {
-            photo = new File(getTempDirectoryPath(), ".Pic.png");
+        
+        String[] fsegs = this.fileUri.split(".");
+        String encodingType = (fsegs[fsegs.length - 1]).toLowerCase(Locale.getDefault());
+        
+        if (encodingType == "jpg" || encodingType == "jpeg") {
+            photo = new File(getTempDirectoryPath(), ".Crop.jpg");
+        } else if (encodingType == "png") {
+            photo = new File(getTempDirectoryPath(), ".Crop.png");
         } else {
             throw new IllegalArgumentException("Invalid Encoding Type: " + encodingType);
         }
         return photo;
+    }
+    
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+    	if (requestCode == Crop.REQUEST_CROP && resultCode == Activity.RESULT_OK) {
+            this.handleCroppedImage();
+        }
+    }
+
+	private void handleCroppedImage() {
+		Bitmap bitmap = null;
+        
+		if (destType == DATA_URL) {
+            bitmap = BitmapFactory.decodeFile(fileUri);
+            
+            if(bitmap == null) {
+            	this.failPicture("Error capturing image.");
+            }
+
+            this.processPicture(bitmap);
+            
+        } else if( destType == NATIVE_URI || destType == FILE_URI ) {
+        	this.callbackContext.success( Uri.parse(fileUri).toString() );
+        }
+	}
+	
+	public void processPicture(Bitmap bitmap) {
+        ByteArrayOutputStream jpeg_data = new ByteArrayOutputStream();
+        try {
+            if (bitmap.compress(CompressFormat.JPEG, 100, jpeg_data)) {
+                byte[] code = jpeg_data.toByteArray();
+                byte[] output = Base64.encode(code, Base64.NO_WRAP);
+                String js_out = new String(output);
+                this.callbackContext.success(js_out);
+                js_out = null;
+                output = null;
+                code = null;
+            }
+        } catch (Exception e) {
+            this.failPicture("Error compressing image.");
+        }
+        jpeg_data = null;
+    }
+	
+	/**
+     * Send error message to JavaScript.
+     *
+     * @param err
+     */
+    public void failPicture(String err) {
+        this.callbackContext.error(err);
     }
 }
