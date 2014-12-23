@@ -5,8 +5,8 @@
         <clobbers target="navigator.PhotoCrop" />
     </js-module>
     
-    <js-module src="www/CameraConstants.js" name="PhotoCrop">
-        <clobbers target="Camera" />
+    <js-module src="www/PhotoCropConstants.js" name="PhotoCrop">
+        <clobbers target="PhotoCrop" />
     </js-module>
     
     <platform name="android">
