@@ -36,17 +36,17 @@ for (var key in constants) {
  * @param {Object} options
  */
 pluginExport.cropPicture = function (successCallback, errorCallback, options) {
-    argscheck.checkArgs('fFO', 'PhotoCrop.cropPicture', arguments);
+    argscheck.checkArgs('fFO', 'navigator.PhotoCrop.cropPicture', arguments);
     options = options || {};
     var getValue = argscheck.getValue;
 
     var fileUri = getValue(options.fileUri, '');
-    var destinationType = getValue(options.destinationType, PhotoCrop.DestinationType.FILE_URI);
+    var destinationType = getValue(options.destinationType, navigator.PhotoCrop.DestinationType.FILE_URI);
 
     var targetWidth = getValue(options.targetWidth || options.targetX, 0);
     var targetHeight = getValue(options.targetHeight || options.targetY, 0);
 
-    var cropType = getValue(options.cropType, PhotoCrop.CropType.SQUARE);
+    var cropType = getValue(options.cropType, navigator.PhotoCrop.CropType.SQUARE);
 
     var args = [fileUri, destinationType, cropType, targetWidth, targetHeight];
 
