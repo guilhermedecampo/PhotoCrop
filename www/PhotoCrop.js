@@ -36,7 +36,7 @@ for (var key in constants) {
  * @param {Object} options
  */
 pluginExport.cropPicture = function (successCallback, errorCallback, options) {
-    argscheck.checkArgs('fFO', 'PhotoCrop.getPicture', arguments);
+    argscheck.checkArgs('fFO', 'PhotoCrop.cropPicture', arguments);
     options = options || {};
     var getValue = argscheck.getValue;
 
@@ -51,10 +51,6 @@ pluginExport.cropPicture = function (successCallback, errorCallback, options) {
     var args = [fileUri, destinationType, cropType, targetWidth, targetHeight];
 
     exec(successCallback, errorCallback, "PhotoCrop", "cropPicture", args);
-};
-
-pluginExport.cleanup = function (successCallback, errorCallback) {
-    exec(successCallback, errorCallback, "PhotoCrop", "cleanup", []);
 };
 
 module.exports = pluginExport;
