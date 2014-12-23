@@ -4,7 +4,7 @@
 
 var argscheck = require('cordova/argscheck'),
     exec = require('cordova/exec'),
-    PhotoCrop = require('./Camera');
+    PhotoCrop = require('./PhotoCrop');
 
 var cameraExport = {};
 
