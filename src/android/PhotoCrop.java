@@ -83,7 +83,7 @@ public class PhotoCrop extends CordovaPlugin {
 			this.targetY = this.targetHeight = args.getInt(4);
 
 			try {
-				CropImageIntentBuilder crop;
+				/*CropImageIntentBuilder crop new CropImageIntentBuilder();
 					
 				if( cropType == SQUARE_TYPE ) {
 					crop.asSquare();
@@ -93,7 +93,7 @@ public class PhotoCrop extends CordovaPlugin {
 					crop.withAspect(targetX, targetY);
 				}
 				
-				this.cordova.startActivityForResult(this, crop.getIntent(this.cordova.getActivity()), crop.REQUEST_CROP);
+				this.cordova.startActivityForResult(this, crop.getIntent(this.cordova.getActivity()), crop.REQUEST_CROP);*/
 			} catch (IllegalArgumentException e) {
 				Log.e(this.cordova.getActivity().getApplication().getPackageName(), e.getLocalizedMessage(), e);
 				
@@ -154,9 +154,9 @@ public class PhotoCrop extends CordovaPlugin {
     
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
     	Log.i(this.cordova.getActivity().getApplication().getPackageName(), "Result: " + requestCode);
-    	if (requestCode == Crop.REQUEST_CROP && resultCode == Activity.RESULT_OK) {
-            this.handleCroppedImage();
-        }
+    	//if (requestCode == Crop.REQUEST_CROP && resultCode == Activity.RESULT_OK) {
+          //  this.handleCroppedImage();
+        //}
     }
 
 	private void handleCroppedImage() {

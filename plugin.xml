@@ -16,7 +16,7 @@
         </config-file>
         
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
-            <activity android:name="com.soundcloud.android.crop.CropImageActivity" />
+            <activity android:name="com.sarriaroman.crop.CropImage" />
         </config-file>
         
         <source-file src="src/android/PhotoCrop.java" target-dir="src/com/sarriaroman/photocrop" />
