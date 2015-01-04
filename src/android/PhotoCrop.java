@@ -23,8 +23,6 @@ import android.os.Environment;
 import android.util.Base64;
 import android.util.Log;
 
-import com.soundcloud.android.crop.Crop;
-
 /**
  * This class launches the crop view and returns the captured image.
  */
@@ -85,8 +83,7 @@ public class PhotoCrop extends CordovaPlugin {
 			this.targetY = this.targetHeight = args.getInt(4);
 
 			try {
-				Crop crop = new Crop(Uri.parse(this.fileUri))
-					.output(Uri.fromFile(this.destUri));
+				CropImageIntentBuilder crop;
 					
 				if( cropType == SQUARE_TYPE ) {
 					crop.asSquare();
