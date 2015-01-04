@@ -105,8 +105,7 @@ public class Crop {
         fragment.startActivityForResult(getIntent(context), REQUEST_CROP);
     }
 
-    @VisibleForTesting
-    Intent getIntent(Context context) {
+    public Intent getIntent(Context context) {
         cropIntent.setClass(context, CropImageActivity.class);
         return cropIntent;
     }

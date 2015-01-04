@@ -21,6 +21,6 @@
         
         <source-file src="src/android/PhotoCrop.java" target-dir="src/com/sarriaroman/photocrop" />
         
-        <framework src="src/android/SoundcloudCropLib" custom="true" />
+        <framework src="src/android/CropLib" custom="true" />
     </platform>
 </plugin>

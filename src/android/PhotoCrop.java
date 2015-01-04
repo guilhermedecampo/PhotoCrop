@@ -21,6 +21,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Base64;
+import android.util.Log;
 
 import com.soundcloud.android.crop.Crop;
 
@@ -49,6 +50,7 @@ public class PhotoCrop extends CordovaPlugin {
 	private String fileUri;
 	private int destType;
 	private int cropType;
+	private File destUri;
 
 	/**
 	 * Executes the request and returns PluginResult.
@@ -65,12 +67,16 @@ public class PhotoCrop extends CordovaPlugin {
 			CallbackContext callbackContext) throws JSONException {
 		this.callbackContext = callbackContext;
 
-		if (action.equals("takePicture")) {
+		if (action.equals("cropPicture")) {
 			this.destType = FILE_URI;
 			this.targetX = this.targetWidth = 0;
 			this.targetY = this.targetHeight = 0;
 
 			this.fileUri = args.getString(0);
+			this.destUri = this.createCropFile();
+			//this.fileUri = this.fileUri.replaceAll("file://", "");
+			
+			Log.i(this.cordova.getActivity().getApplication().getPackageName(), "File: " + this.fileUri);
 			
 			destType = args.getInt(1);
 			cropType = args.getInt(2);
@@ -80,7 +86,7 @@ public class PhotoCrop extends CordovaPlugin {
 
 			try {
 				Crop crop = new Crop(Uri.parse(this.fileUri))
-					.output(Uri.fromFile(this.createCropFile()));
+					.output(Uri.fromFile(this.destUri));
 					
 				if( cropType == SQUARE_TYPE ) {
 					crop.asSquare();
@@ -90,8 +96,10 @@ public class PhotoCrop extends CordovaPlugin {
 					crop.withAspect(targetX, targetY);
 				}
 				
-				crop.start(this.cordova.getActivity());
+				this.cordova.startActivityForResult(this, crop.getIntent(this.cordova.getActivity()), crop.REQUEST_CROP);
 			} catch (IllegalArgumentException e) {
+				Log.e(this.cordova.getActivity().getApplication().getPackageName(), e.getLocalizedMessage(), e);
+				
 				callbackContext.error("Illegal Argument Exception");
 				PluginResult r = new PluginResult(PluginResult.Status.ERROR);
 				callbackContext.sendPluginResult(r);
@@ -134,12 +142,12 @@ public class PhotoCrop extends CordovaPlugin {
     private File createCropFile() {
         File photo = null;
         
-        String[] fsegs = this.fileUri.split(".");
+        String[] fsegs = this.fileUri.split("\\.");
         String encodingType = (fsegs[fsegs.length - 1]).toLowerCase(Locale.getDefault());
         
-        if (encodingType == "jpg" || encodingType == "jpeg") {
+        if (encodingType.equalsIgnoreCase("jpg") || encodingType.equalsIgnoreCase("jpeg")) {
             photo = new File(getTempDirectoryPath(), ".Crop.jpg");
-        } else if (encodingType == "png") {
+        } else if (encodingType.equalsIgnoreCase("png")) {
             photo = new File(getTempDirectoryPath(), ".Crop.png");
         } else {
             throw new IllegalArgumentException("Invalid Encoding Type: " + encodingType);
@@ -148,6 +156,7 @@ public class PhotoCrop extends CordovaPlugin {
     }
     
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+    	Log.i(this.cordova.getActivity().getApplication().getPackageName(), "Result: " + requestCode);
     	if (requestCode == Crop.REQUEST_CROP && resultCode == Activity.RESULT_OK) {
             this.handleCroppedImage();
         }
@@ -157,14 +166,13 @@ public class PhotoCrop extends CordovaPlugin {
 		Bitmap bitmap = null;
         
 		if (destType == DATA_URL) {
-            bitmap = BitmapFactory.decodeFile(fileUri);
+            bitmap = BitmapFactory.decodeFile(destUri.getAbsolutePath());
             
             if(bitmap == null) {
             	this.failPicture("Error capturing image.");
             }
 
             this.processPicture(bitmap);
-            
         } else if( destType == NATIVE_URI || destType == FILE_URI ) {
         	this.callbackContext.success( Uri.parse(fileUri).toString() );
         }
