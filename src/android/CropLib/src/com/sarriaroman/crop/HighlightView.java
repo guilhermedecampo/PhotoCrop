@@ -16,8 +16,6 @@
 
 package com.sarriaroman.crop;
 
-import com.android.camera.R;
-
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;

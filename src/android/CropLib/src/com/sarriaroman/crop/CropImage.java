@@ -43,7 +43,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-import com.android.camera.R;
 import com.sarriaroman.crop.gallery.IImage;
 import com.sarriaroman.crop.gallery.IImageList;
 
